@@ -19,17 +19,11 @@ import { selectRoomsCount } from '../../reducers/rooms';
 const links: INavLink[] = [
 	{
 		key: 'link1',
-		name: 'Map',
-		url: '/romania/sibiu/m6/l01',
-		icon: 'Globe',
-	},
-	{
-		key: 'link2',
 		name: 'Dashboard',
-		url: '/',
+		url: '/stats',
 		disabled: false,
 		icon: 'BarChartVertical',
-	},
+	}
 ];
 
 // SideNavBar Component
