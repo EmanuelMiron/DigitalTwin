@@ -262,7 +262,7 @@ export const BookDeskDialog = () => {
         // Limit the possible Dates for booking to only 7
         let pDates = [...possibleDates];
         
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= 7; i++) {
             pDates.push(addDays(today, i))
         }
 
