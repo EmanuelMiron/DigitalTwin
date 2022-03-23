@@ -350,7 +350,7 @@ export const BookDeskDialog = () => {
                         />
                         <TextField
                             label={"Email Address"}
-                            placeholder={"uiexxxxxx@continental-corporation.com"}
+                            placeholder={"uiexxxxxx@contiwan.com"}
                             value={email}
                             onChange={(e: any) => {
                                 setEmail(e.currentTarget.value)
