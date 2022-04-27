@@ -39,6 +39,7 @@ export const sensorsDataUrl = getUrl("REACT_APP_SENSORDATA_URL", "/state/{locati
 export const sidebarDataUrl = getUrl("REACT_APP_SIDEBAR_DATA_URL", "/sidebar/{locationPath}");
 export const warningsDataUrl = getUrl("REACT_APP_WARNINGS_DATA_URL", "/faults/{locationPath}");
 export const UserDataUrl = getUrl("REACT_APP_USER_DATA_URL", "/user")
+export const UserRightsUrl = getUrl("REACT_APP_USER_RIGHTS_URL", "/user_rights")
 
 export const trackerHostname = process.env.REACT_APP_TRACKER_HOSTNAME ?? "localhost:3001";
 export const subscriptionKey = ensureEnv("REACT_APP_MAP_SUBSCRIPTION_KEY");

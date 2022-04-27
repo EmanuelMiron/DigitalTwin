@@ -1,6 +1,7 @@
 // Import Dependencies
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { History } from 'history';
+import { UserRightsUrl } from '../config';
 import { DialogType } from '../models/dialogData';
 
 // Import Types
@@ -14,12 +15,14 @@ type ClaimsData = { typ: string, val: string }[];
 interface UserState {
     name?: string,
     email?: string,
+    adminLocations?: string[]
 }
 
 // Declare Constants
 
 const NAME_CLAIM = "name";
 const EMAIL_CLAIM = "email";
+const ADMIN_LOCATIONS_CLAIM = "adminLocations";
 
 const USER_LOGOUT_URL = `${process.env.PUBLIC_URL}/.auth/logout?post_logout_redirect_uri=${process.env.PUBLIC_URL}/`;
 
@@ -35,8 +38,6 @@ const userSlice = createSlice({
     reducers: {
         // Creates a setUser action
         setUser: (state, action: PayloadAction<any>) => {
-
-            console.log(action.payload)
             if(action.payload.length === 0){
                 state.name = undefined;
                 state.email = undefined;
@@ -51,6 +52,11 @@ const userSlice = createSlice({
                     // if the value is an email, save it in the store
                     if (claim.typ === EMAIL_CLAIM) {
                         state.email = claim.val;
+                    }
+
+                    // if the value is an email, save it in the store
+                    if (claim.typ === ADMIN_LOCATIONS_CLAIM) {
+                        state.adminLocations = claim.val;
                     }
                 });
             }
@@ -119,12 +125,33 @@ const getUserData = async () => {
     }
 }
 
+const getUserAdminRights = async (id:any) => {
+    try {
+        const response: Response = await fetch(`${UserRightsUrl}/${id}`);
+
+        // If the response is ok, returns the json obj, if it is empty return an empty obj.
+        if (response.ok) {
+            const json= await response.json();
+            return json ?? {};
+        } else {
+            throw new Error();
+        }
+    } catch {
+        // If there is a problem, return to the console the following error
+        console.error("Failed to fetch user data");
+        return [];
+    }
+}
+
 
 // Fetch user Data
 export const fetchUserData = (): AppThunk => async (dispatch) => {
     let data = await getUserData();
 
+    let adminRights = await getUserAdminRights(data.ID);
+
     console.log(data)
+    console.log(adminRights)
 
     // dispatch(updateIcons(data))
     dispatch(setUser(
@@ -136,6 +163,10 @@ export const fetchUserData = (): AppThunk => async (dispatch) => {
             {
                 "typ": "name",
                 "val": data.displayName
+            },
+            {
+                "typ": "adminLocations",
+                "val": adminRights
             }
         ]
     ))
