@@ -25,6 +25,7 @@ import './App.scss';
 import { fetchAssetTypesInfo } from './reducers/assetTypesData';
 import { fetchIcons } from './reducers/icons';
 import { wsConnect } from './helpers/websocket';
+import { fetchUserData } from './reducers/user';
 
 initializeIcons();
 
@@ -54,6 +55,9 @@ const App: React.FC = () => {
 
     // Dispatch the fetchIcons Action ( Requests the icons saved in the db as svgs)
     dispatch(fetchIcons());
+
+    // Fetch userdata and dispatch it
+    dispatch(fetchUserData());
 
     // Don't add `path` to deps as we want to trigger this effect only once, not on every location change.
     // eslint-disable-next-line react-hooks/exhaustive-deps

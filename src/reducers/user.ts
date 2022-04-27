@@ -1,9 +1,11 @@
 // Import Dependencies
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { History } from 'history';
+import { DialogType } from '../models/dialogData';
 
 // Import Types
 import { AppThunk, RootState } from '../store/store';
+import { hideDialog } from './dialog';
 
 // Types and Interfaces
 
@@ -97,6 +99,49 @@ const userSlice = createSlice({
 //     const data = await fetchUserData();
 //     return dispatch(userSlice.actions.setUser(data.user_claims));
 // };
+
+
+const getUserData = async () => {
+    try {
+        const response: Response = await fetch(`http://localhost:8080/getCurrentUsername`);
+
+        // If the response is ok, returns the json obj, if it is empty return an empty obj.
+        if (response.ok) {
+            const json= await response.json();
+            return json ?? {};
+        } else {
+            throw new Error();
+        }
+    } catch {
+        // If there is a problem, return to the console the following error
+        console.error("Failed to fetch user data");
+        return [];
+    }
+}
+
+
+// Fetch user Data
+export const fetchUserData = (): AppThunk => async (dispatch) => {
+    let data = await getUserData();
+
+    console.log(data)
+
+    // dispatch(updateIcons(data))
+    dispatch(setUser(
+        [
+            {
+                "typ": "email",
+                "val": data.mail
+            },
+            {
+                "typ": "name",
+                "val": data.displayName
+            }
+        ]
+    ))
+
+    dispatch(hideDialog(DialogType.LogIn));
+}
 
 // Export logout function
 export const logout = (history: History): AppThunk => () => {
