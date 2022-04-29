@@ -48,8 +48,6 @@ const App: React.FC = () => {
     // Dispatch the fetchLocationsInfo Action ( Saves the Location information to the store )
     dispatch(fetchLocationsInfo(path, history));
 
-    // Dispatch the fetchAssetsInfo Action ( Requests and saves the Assets to the store )
-    dispatch(fetchAssetsInfo());
 
     // Dispatch the fetchAssetsInfo Action ( Requests and saves the Assets to the store )
     dispatch(fetchAssetTypesInfo());
@@ -75,6 +73,9 @@ const App: React.FC = () => {
       } else {
         // Dispatch the updateCurrentLocation Action( Changes the locationData.current to the current location)
         dispatch(updateCurrentLocation(path, history));
+
+        // Dispatch the fetchAssetsInfo Action ( Requests and saves the Assets to the store )
+        dispatch(fetchAssetsInfo(path.split("/")[path.split("/").length - 1]));
       }
       wsConnect()
     }

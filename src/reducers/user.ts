@@ -15,6 +15,7 @@ type ClaimsData = { typ: string, val: string }[];
 interface UserState {
     name?: string,
     email?: string,
+    userID? :string,
     adminLocations?: string[]
 }
 
@@ -22,6 +23,7 @@ interface UserState {
 
 const NAME_CLAIM = "name";
 const EMAIL_CLAIM = "email";
+const USER_ID_CLAIM = "userID";
 const ADMIN_LOCATIONS_CLAIM = "adminLocations";
 
 const USER_LOGOUT_URL = `${process.env.PUBLIC_URL}/.auth/logout?post_logout_redirect_uri=${process.env.PUBLIC_URL}/`;
@@ -52,6 +54,11 @@ const userSlice = createSlice({
                     // if the value is an email, save it in the store
                     if (claim.typ === EMAIL_CLAIM) {
                         state.email = claim.val;
+                    }
+
+                    // if the value is an email, save it in the store
+                    if (claim.typ === USER_ID_CLAIM) {
+                        state.userID = claim.val;
                     }
 
                     // if the value is an email, save it in the store
@@ -165,6 +172,10 @@ export const fetchUserData = (): AppThunk => async (dispatch) => {
                 "val": data.displayName
             },
             {
+                "typ": "userID",
+                "val": data.ID
+            },
+            {
                 "typ": "adminLocations",
                 "val": adminRights
             }
@@ -183,6 +194,7 @@ export const logout = (history: History): AppThunk => () => {
 // Export user state values from the store
 export const selectUserName = (state: RootState) => state.user.name;
 export const selectUserEmail = (state: RootState) => state.user.email;
+export const selectUser = (state: RootState) => state.user;
 
 export const { setUser } = userSlice.actions;
 

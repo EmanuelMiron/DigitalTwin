@@ -112,9 +112,9 @@ const assetDataSlice = createSlice({
 })
 
 // Fetches assetData and returns it
-const fetchAssetsData = async () => {
+const fetchAssetsData = async (area:string) => {
     try {
-        const response: Response = await fetch(assetDataUrl);
+        const response: Response = await fetch(`${assetDataUrl}/location/${area}`);
 
         // If the response is ok, returns the json obj, if it is empty return an empty obj.
         if (response.ok) {
@@ -133,8 +133,9 @@ const fetchAssetsData = async () => {
 export const { setAssetsData, deleteAsset, addAsset, updateAsset } = assetDataSlice.actions;
 
 // Fetches assetData and saves it into the store
-export const fetchAssetsInfo = (): AppThunk => async (dispatch) => {
-    let data = await fetchAssetsData();
+export const fetchAssetsInfo = (area:string): AppThunk => async (dispatch) => {
+    
+    let data = await fetchAssetsData(area);
     dispatch(setAssetsData(data))
 
     // Update the assetData on the map
