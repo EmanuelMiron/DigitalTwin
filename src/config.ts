@@ -29,7 +29,7 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL ?? "http://localhost:3001";
 
 // {locationPath} vill be replaced with location's path in sitemap, e.g. /europe/southcampus/bldg1
 export const sitemapUrl = getUrl("REACT_APP_SITEMAP_URL", "/sitemap");
-export const assetDataUrl = getUrl("REACT_APP_ASSET_DATA_URL", "/asset")
+export const assetDataUrl = getUrl("REACT_APP_ASSET_DATA_URL", "/assets")
 export const deskBookingUrl = getUrl("REACT_APP_DESK_BOOKING_URL", "/book_desk")
 export const assetTypeDataUrl = getUrl("REACT_APP_ASSET_TYPES_DATA_URL", "/asset_types")
 export const iconsUrl = getUrl("REACT_APP_ICONS_URL", "/asset_icons")
