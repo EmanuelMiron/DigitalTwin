@@ -18,6 +18,7 @@ import { formatDateString, formatDateToString } from './CreateAssetDialog';
 import { formatStringToDate } from './EditAssetDialog';
 import { mapService } from '../../../services/mapService';
 import { sendWebSocketMessage } from '../../../helpers/websocket';
+import { selectUser } from '../../../reducers/user';
 
 // import DatePicker from "react-multi-date-picker"
 
@@ -66,16 +67,23 @@ export const BookDeskDialog = () => {
     const [possibleDates, setPossibleDates] = useState<any>([today]);
     const [bookingButtonState, setBookingButtonState] = useState(false);
     const [bookingButtonText, setBookingButtonText] = useState('Book Desk')
+    const [currentUser, setCurrentUser] = useState<any>({});
 
     // useSelectorHooks
     const data: any = useSelector(selectBookDesk);
     const assetData = useSelector(selectAssetData);
+    const user:any = useSelector(selectUser);
+
+    useEffect(() => {
+        setCurrentUser(user);
+    }, [user])
+
 
     // Initialise Dispatch
     const dispatch = useDispatch();
 
     // Send a request to backend Service to handle the creation of the booking
-    const createBooking = async (email: any, bookingDates: any) => {
+    const createBooking = async (user: any, bookingDates: any) => {
 
         await fetch(`${deskBookingUrl}`, {
             method: 'POST',
@@ -83,7 +91,7 @@ export const BookDeskDialog = () => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email: email,
+                user,
                 bookingDates,
                 Desk: data
             })
@@ -182,7 +190,7 @@ export const BookDeskDialog = () => {
         })
 
         // Create the booking with the given email address and the array of dates
-        createBooking(email, selectedBookingDates);
+        createBooking(currentUser, selectedBookingDates);
 
         // Create an array with the elements of the bookedFormattedDates and the startBookingDate
         let newDateArray = [
@@ -351,12 +359,12 @@ export const BookDeskDialog = () => {
                         <TextField
                             label={"Email Address"}
                             placeholder={"uiexxxxxx@contiwan.com"}
-                            value={email}
+                            value={currentUser.email}
                             onChange={(e: any) => {
                                 setEmail(e.currentTarget.value)
                             }}
                             className={styles.input}
-                            required={true}
+                            disabled={true}
                         />
                         <PrimaryButton
                             className={styles.editButton}
