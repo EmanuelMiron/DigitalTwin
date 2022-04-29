@@ -185,6 +185,7 @@ export const updateCurrentLocation = (path: string, history: History): AppThunk 
 
 // Export different states from state.locationData
 export const selectCurrentLocationData = (state: RootState) => state.locationData.current.location;
+export const selectCurrentLocation = (state: RootState) => state.locationData.current;
 export const selectCurrentLocationId = (state: RootState) => state.locationData.current.location?.id;
 export const selectCurrentLocationSegments = (state: RootState) => state.locationData.current.segments;
 export const selectLocationsData = (state: RootState) => state.locationData.allLocations;

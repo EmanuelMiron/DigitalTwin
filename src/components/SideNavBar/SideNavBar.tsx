@@ -5,6 +5,7 @@ import './SideNavBar.scss';
 import React, { useState } from 'react';
 import { getId, IconButton, INavLink, Nav } from '@fluentui/react';
 import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 // Import Components
 import { FavoritesSwitcher } from '../FavoritesSwitcher/FavoritesSwitcher';
@@ -18,32 +19,34 @@ import { selectRoomsCount } from '../../reducers/rooms';
 // Sidebar Icon & Links
 const links: INavLink[] = [
 	{
-		key: 'link1',
-		name: 'Dashboard',
-		url: '/stats',
+		key: '1',
+		name: 'Map',
+		url: '/global',
 		disabled: false,
-		icon: 'BarChartVertical',
+		icon: 'GlobeFavorite',
 	}
 ];
 
 // SideNavBar Component
 const SideNavBar: React.FC = () => {
-	
+
 	// States
 	const [isCollapsed, setCollapsed] = useState(true);
 	const [isFavoritesVisible, setFavoritesVisibility] = useState(false);
 	const [isLayersSwitcherVisible, setLayersSwitcherVisibility] = useState(false);
 	const [isRoomSearchVisible, setRoomSearchVisibility] = useState(false);
-	
+
 	// Constants
 	const roomsCount: number = useSelector(selectRoomsCount);
 	const toggleColapsed = () => setCollapsed(!isCollapsed);
 	const favoritesButtonId: string = 'favorites-button';
 	const layersButtonId = getId("layers-button");
 	const searchRoomButtonId = getId('search-room-button');
+	const history = useHistory();
 
 	return (
 		<div className={`sidenav-bar${isCollapsed ? ' collapsed' : ''}`}>
+			{console.log(history)}
 			<div className="top-group">
 				<Nav
 					groups={[{ links }]}
@@ -55,38 +58,55 @@ const SideNavBar: React.FC = () => {
 				/>
 
 				<NavbarButton
-					id={favoritesButtonId}
-					text={isCollapsed ? undefined : 'Favorites'}
+					id={"dashboard"}
+					text={isCollapsed ? undefined : 'Dashboard'}
 					iconProps={{
-						iconName: "FavoriteStarFill",
-						className: 'favorites-button-icon',
+						iconName: "BIDashboard",
 					}}
-					onClick={() => setFavoritesVisibility(!isFavoritesVisible)}
-					ariaLabel="Favorites"
-					title={isCollapsed ? 'Favorites' : undefined}
+					onClick={() => history.push("/dashboard")}
+					ariaLabel="Dashboard"
+					title={isCollapsed ? 'Dashboard' : undefined}
 				/>
+				{history.location.pathname !== "/dashboard" && (
+					<>
+						<NavbarButton
+							id={favoritesButtonId}
+							text={isCollapsed ? undefined : 'Favorites'}
+							iconProps={{
+								iconName: "FavoriteStarFill",
+								className: 'favorites-button-icon',
+							}}
+							onClick={() => setFavoritesVisibility(!isFavoritesVisible)}
+							ariaLabel="Favorites"
+							title={isCollapsed ? 'Favorites' : undefined}
+						/>
+
+						<NavbarButton
+							id={searchRoomButtonId}
+							text={isCollapsed ? undefined : 'Search room'}
+							disabled={roomsCount === 0}
+							iconProps={{
+								iconName: "Search",
+							}}
+							onClick={() => setRoomSearchVisibility(!isRoomSearchVisible)}
+							ariaLabel="Search room"
+							title={isCollapsed ? 'Search room' : undefined}
+						/>
+					</>
+				)}
+			</div>
+			{history.location.pathname !== "/dashboard" && (
 
 				<NavbarButton
-					id={searchRoomButtonId}
-					text={isCollapsed ? undefined : 'Search room'}
-					disabled={roomsCount === 0}
-					iconProps={{
-						iconName: "Search",
-					}}
-					onClick={() => setRoomSearchVisibility(!isRoomSearchVisible)}
-					ariaLabel="Search room"
-					title={isCollapsed ? 'Search room' : undefined}
+					id={layersButtonId}
+					iconName="Settings"
+					ariaLabel="Settings"
+					onClick={() => setLayersSwitcherVisibility(!isLayersSwitcherVisible)}
+					text={isCollapsed ? undefined : 'Settings'}
+					title={isCollapsed ? 'Settings' : undefined}
 				/>
-			</div>
 
-			<NavbarButton
-				id={layersButtonId}
-				iconName="Settings"
-				ariaLabel="Settings"
-				onClick={() => setLayersSwitcherVisibility(!isLayersSwitcherVisible)}
-				text={isCollapsed ? undefined : 'Settings'}
-				title={isCollapsed ? 'Settings' : undefined}
-			/>
+			)}
 
 			<div className="collapse-button-container">
 				<IconButton

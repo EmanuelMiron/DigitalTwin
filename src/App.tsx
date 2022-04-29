@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { initializeIcons } from '@uifabric/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useLocation } from 'react-router-dom';
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 
 // Import Components
 import AppHeader from './components/AppHeader/AppHeader';
@@ -13,9 +13,9 @@ import SideNavBar from './components/SideNavBar/SideNavBar';
 
 // Import Reducers
 import {
-    fetchLocationsInfo,
-    selectLocationsDataLoaded,
-    updateCurrentLocation,
+  fetchLocationsInfo,
+  selectLocationsDataLoaded,
+  updateCurrentLocation,
 } from './reducers/locationData';
 // import { fetchUserInfo } from './reducers/user';
 import { fetchAssetsInfo } from './reducers/assetData';
@@ -26,13 +26,14 @@ import { fetchAssetTypesInfo } from './reducers/assetTypesData';
 import { fetchIcons } from './reducers/icons';
 import { wsConnect } from './helpers/websocket';
 import { fetchUserData } from './reducers/user';
+import { Dashboard } from './components/Dashboard/Dashboard';
 
 initializeIcons();
 
 const App: React.FC = () => {
   // Create a reference for the dispatch function of the Redux store.
   const dispatch = useDispatch();
-  
+
   // Save the current history sequence in the history variable
   const history = useHistory();
 
@@ -68,21 +69,41 @@ const App: React.FC = () => {
   useEffect(() => {
     // Only parse path and update current location when locations data has been loaded otherwise there is a race condition between this update and update triggered by`fetchLocationsInfo`
     if (isLoaded) {
+      console.log(path);
+      if (path === "/dashboard") {
+
+      } else {
         // Dispatch the updateCurrentLocation Action( Changes the locationData.current to the current location)
         dispatch(updateCurrentLocation(path, history));
-        wsConnect()
+      }
+      wsConnect()
     }
   }, [dispatch, history, isLoaded, path])
 
   return (
-    <div className="App">
-      <AppHeader />
-      <main>
-        <SideNavBar />
-        <Map />
-        {/* <StatsSidebar /> */}
-      </main>
-    </div>
+    <Switch>
+      <Route path={"/dashboard"}>
+        <div className="App">
+          <AppHeader />
+          <main>
+            <SideNavBar />
+            <Dashboard />
+            {/* <StatsSidebar /> */}
+          </main>
+        </div>
+      </Route>
+      <Route path={""}>
+        <div className="App">
+          <AppHeader />
+          <main>
+            <SideNavBar />
+            <Map />
+            {/* <StatsSidebar /> */}
+          </main>
+        </div>
+      </Route>
+    </Switch>
+
   );
 };
 
