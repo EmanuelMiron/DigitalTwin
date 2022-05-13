@@ -225,13 +225,11 @@ export const BookDeskDialog = () => {
             // Send message to WebSocket with the modified values
             sendWebSocketMessage(JSON.stringify(
                 {
-                    state: {
-                        type: data.assetType,
-                        updatedAsset: [currentAsset, ...otherAssets]
-                    },
-                    mapData: {
-                        ...newAssetData,
-                        [data.assetType]: [currentAsset, ...otherAssets]
+                    "topic": "updateAsset",
+                    "type": "Stand-Up Desk",
+                    "assetId": currentAsset.assetId,
+                    "props": {
+                        "Reserved": "true",
                     }
                 }
             ));

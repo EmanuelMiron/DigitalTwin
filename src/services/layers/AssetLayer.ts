@@ -86,6 +86,38 @@ export class AssetLayer implements Layer {
         }
     }
 
+    // Update data with the provided data
+    updateDesk(data:any){
+        
+        // Message example
+        // {
+        //     "topic": "updateAsset",
+        //     "type": "Stand-Up Desk",
+        //     "assetId": 435,
+        //     "props": {
+        //         "Reserved": true,
+        //     }
+        // }
+
+        let el:any = document.getElementById(`asset-${data.assetId}`)
+
+        if(el){
+            
+            el = el.children;
+
+            if(data.type === 'Stand-Up Desk'){
+                if(data.props.Reserved === 'true' || data.props.Reserved === true){
+                    el[0].setAttribute('style', "fill: red;")
+                }else {
+                    el[0].setAttribute('style', "fill: green;")
+                }
+            }
+        }
+
+        
+
+    }
+
     updateIcons(icons:any[]){
         this.icons = icons
     }
@@ -152,6 +184,7 @@ export class AssetLayer implements Layer {
 
         // Create Assets from the provided data
         this.data.forEach((assetData: MarkerData) => {
+            // console.log(this.data, assetData)
             this.createAsset(assetData, isAssetsVisible);
         })
 
@@ -160,7 +193,7 @@ export class AssetLayer implements Layer {
             this.isAsssetsVisible = isAssetsVisible;
             this.animation = new AnimationController('pulse');
             this.map?.events.add('zoom', this.updateAssetsVisibility);
-        }
+        }    
     }
 
     
@@ -171,14 +204,18 @@ export class AssetLayer implements Layer {
             return;
         }
 
+
+        // console.log(data)
+        
         // Get the id for the curent asset
-        const id: string = getId(`${this.id}-asset`);
+        // const id: string = getId(`${this.id}-asset`);
+        const id: string = `asset-${data.assetId}`
 
         
         const iconID = Number(data.iconID);
         const icon = this.icons.filter((icon:any) => icon.id === iconID)
 
-        const htmlMarker = [icon[0].svg.slice(0, 4), ` id="${id}"" `, icon[0].svg.slice(4)].join('')
+        const htmlMarker = [icon[0].svg.slice(0, 4), ` id="${id}" `, icon[0].svg.slice(4)].join('')
         
         // Create the html Marker
         // console.log(this.icons);
@@ -207,12 +244,16 @@ export class AssetLayer implements Layer {
         // Add the marker to the map and assets
         this.map.markers.add(htmlAsset);
         this.assets.push(htmlAsset);
+        
 
         // Get asset DOM Element
         const asset = document.getElementById(id);
-        // console.log(asset?.children) 
 
         let h:any = asset?.children
+
+        if(h === undefined){
+            console.log(id)
+        }
 
         // console.log(data);
         if(data.type === 'Stand-Up Desk'){
@@ -222,6 +263,9 @@ export class AssetLayer implements Layer {
                 h[0].setAttribute('style', "fill: green;")
             }
         }
+
+        // console.log(this.assets)
+        // console.log(htmlAsset)
 
         if(!asset) {
             return;
