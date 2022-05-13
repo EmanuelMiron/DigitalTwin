@@ -268,11 +268,15 @@ export const BookDeskDialog = () => {
         // Limit the possible Dates for booking to only 7
         let pDates = [...possibleDates];
         
-        for (let i = 1; i <= 7; i++) {
+        for (let i = 1; i <= 30; i++) {
             pDates.push(addDays(today, i))
         }
 
         setPossibleDates(pDates);
+
+        setStartBookingDate(today); 
+        setEndBookingDate(today);
+
     }, [])
 
 
@@ -321,13 +325,13 @@ export const BookDeskDialog = () => {
                             firstWeekOfYear={1}
                             label={"Start Date"}
                             // value={formatStringToDate(bookingDate)}
-                            value={undefined}
+                            value={formatStringToDate(startBookingDate)}
                             showMonthPickerAsOverlay={true}
                             strings={defaultDatePickerStrings}
                             className={styles.input}
                             minDate={today}
-                            maxDate={addDays(today, 7)}
-                            onSelectDate={(date: any) => { date !== null && setStartBookingDate(formatDateToString(date)) }}
+                            maxDate={addDays(today, 30)}
+                            onSelectDate={(date: any) => { if(date !== null)  {setStartBookingDate(formatDateToString(date)); setEndBookingDate(formatDateToString(date)) }}}
                             calendarProps={{
                                 calendarDayProps: {
                                     restrictedDates: bookedFormattedDates
@@ -340,12 +344,12 @@ export const BookDeskDialog = () => {
                             showWeekNumbers={true}
                             firstWeekOfYear={1}
                             label={"End Date"}
-                            value={undefined}
+                            value={formatStringToDate(endBookingDate)}
                             showMonthPickerAsOverlay={true}
                             strings={defaultDatePickerStrings}
                             className={styles.input}
                             minDate={today}
-                            maxDate={addDays(today, 7)}
+                            maxDate={addDays(today, 30)}
                             onSelectDate={(date: any) => { date !== null && setEndBookingDate(formatDateToString(date)) }}
                             calendarProps={{
                                 calendarDayProps: {
@@ -368,7 +372,7 @@ export const BookDeskDialog = () => {
                             className={styles.editButton}
                             text={bookingButtonText}
                             disabled={bookingButtonState}
-                            onClick={handleBooking}
+                            onClick={handleBooking} 
                             allowDisabledFocus />
                     </div>
 
