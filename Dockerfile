@@ -1,14 +1,19 @@
-# Bundle static assets with nginx
-FROM nginx:1.21.0-alpine3
+FROM node:alpine3.14
 
-# Copy build/ /usr/share/nginx/html
-COPY build/ /usr/share/nginx/html
+# Create app directory
+WORKDIR /usr/src/app/server
 
-# Add your nginx.conf
-COPY build/nginx.conf /etc/nginx/conf.d/default.conf
+# Install app dependencies
+COPY ./server/package.json /usr/src/app/server
 
-# Expose port 
-EXPOSE 80
+RUN npm install
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+WORKDIR /usr/src/app
+
+#Bundle app source
+COPY . .
+
+WORKDIR /usr/src/app/server
+
+EXPOSE 8080
+CMD [ "node", "index.js"]
