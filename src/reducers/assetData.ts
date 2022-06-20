@@ -50,7 +50,7 @@ const assetDataSlice = createSlice({
 
             const assets = action.payload
             let updateState: any = {}
-            if(assets){
+            if(Array.isArray(assets)){
 
                 assets.forEach(asset => {
                     // Create the assetTypes on the state obj

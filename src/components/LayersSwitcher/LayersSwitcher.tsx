@@ -43,6 +43,7 @@ export const LayersSwitcher: React.FC<LayerSwitcherProps> = ({ target, onDismiss
         {
           mapService.getLayersInfo().map((layer) => {
             const { id, name } = layer;
+            console.log(id);
             return <Switch
               name={name}
               isVisible={layersVisibility[id]}

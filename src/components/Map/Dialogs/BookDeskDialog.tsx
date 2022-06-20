@@ -58,10 +58,13 @@ export const BookDeskDialog = () => {
     const today = new Date(Date.now());
 
     // State Variables
-    const [startBookingDate, setStartBookingDate] = useState<any>(today);
-    const [endBookingDate, setEndBookingDate] = useState<any>(today);
-    const [email, setEmail] = useState<any>('email');
+    const [startBookingString, setStartBookingString] = useState<String>(formatDateToString(today));
+    const [startBookingDate, setStartBookingDate] = useState<Date>(today);
+    const [endBookingString, setEndBookingString] = useState<String>(formatDateToString(today));
+    const [endBookingDate, setEndBookingDate] = useState<Date>(today);
+    // booked dates coming from the db
     const [bookedDates, setBookedDates] = useState<any>();
+    // booked dates formatted into dates
     const [bookedFormattedDates, setBookedFormattedDates] = useState<any>();
     const [nextAvailableDate, setNextAvailableDate] = useState<any>('Loading...');
     const [possibleDates, setPossibleDates] = useState<any>([today]);
@@ -69,18 +72,92 @@ export const BookDeskDialog = () => {
     const [bookingButtonText, setBookingButtonText] = useState('Book Desk')
     const [currentUser, setCurrentUser] = useState<any>({});
 
+    // Initialise Dispatch
+    const dispatch = useDispatch();
+
     // useSelectorHooks
     const data: any = useSelector(selectBookDesk);
     const assetData = useSelector(selectAssetData);
     const user:any = useSelector(selectUser);
 
+    // ============================= useEffect =============================
+
+    // Once the component mounts, sets the current User to the AD user which accesses the page.
     useEffect(() => {
         setCurrentUser(user);
     }, [user])
 
+    // Whenever the start booking is changed ( from the form ), update the startBookingDate ( just format it from string to Date )
+    useEffect(() => {
+        setStartBookingDate(formatStringToDate(startBookingString))
+    }, [startBookingString])
 
-    // Initialise Dispatch
-    const dispatch = useDispatch();
+    // Whenever the end booking is changed ( from the form ), update the endBookingDate ( just format it from string to Date )
+    useEffect(() => {
+        setEndBookingDate(formatStringToDate(endBookingString))
+    }, [endBookingString])
+
+    // When the booking dialog opens, fetch the booked dates for that particular desk
+    useEffect(() => {
+        // Disable the Booking button so that you can't start the booking if the booked dates are not loaded yet
+        setBookingButtonState(true);
+
+        // Fetches the booked Dates
+        getBookedDates();
+
+        // Limit the possible Dates for booking to only 7
+        let pDates = [...possibleDates];
+        // Add to the pDates all the dates from now to 30 days from now.
+        for (let i = 1; i <= 30; i++) {
+            pDates.push(addDays(today, i))
+        }
+
+        // Set the possible booking Dates
+        setPossibleDates(pDates);
+
+        // Set the Start and End booking dates to today.
+        setStartBookingString(formatDateToString(today)); 
+        setEndBookingString(formatDateToString(today));
+
+    }, [])
+
+    // Whenever bookedDates changes, format them into Dates and order them alphabetically
+    // Save it in bookedFormattedDates
+    useEffect(() => {
+        if (bookedDates !== undefined) {
+
+            let datesArray: any = [];
+
+            // Run through each bookedDate and format them into Dates
+            bookedDates.forEach((bookedDate: any) => {
+                datesArray.push(formatStringToDate(bookedDate.booked_date))
+            })
+
+            // Disbale Saturdays and Sundays
+            possibleDates.forEach((date: Date) => {
+                let currentDay = date.getDay();
+                if( currentDay === 0 || currentDay === 6) {
+                    datesArray.push(date)
+                }
+            })
+
+            // Order them alphabetically
+            let sortedDates = datesArray.sort((a: any, b: any) => a - b)
+
+            // Set Formatted and Ordered booked Dates
+            setBookedFormattedDates(sortedDates);
+        }
+
+    }, [bookedDates])
+
+    // Whenever the possibleDates and bookedFormattedDates change, Get the new Next available date for booking
+    useEffect(() => {
+        const next = getNextAvailableDate();
+        setNextAvailableDate(next);
+
+    }, [possibleDates, bookedFormattedDates])
+
+    // ============================= functions =============================
 
     // Send a request to backend Service to handle the creation of the booking
     const createBooking = async (user: any, bookingDates: any) => {
@@ -146,16 +223,13 @@ export const BookDeskDialog = () => {
 
         // If there are no dates available you can't book this office 
         if (j.length < 1) {
-            setStartBookingDate(undefined);
-            setEndBookingDate(undefined);
-
             // Don't let the user press the Book button if there are no available dates
             setBookingButtonState(true);
             return "You can't book this office at this moment ( all dates are booked )"
         }
 
         // If there is more than one available dates, return only the first one
-        setStartBookingDate(formatStringToDate(j[0]))
+        setStartBookingString(j[0])
         return j[0]
 
     }
@@ -169,16 +243,21 @@ export const BookDeskDialog = () => {
         // Initialise Variables
         let formattedPossibleDates: any = []
         let formattedRestrictedDates: any = []
+        // let newFormattedRestrictedDates:any = []
 
-        // Save possibleDates in formattedPossibleDates as strings
-        possibleDates.forEach((date: any, idx: number) => { formattedPossibleDates[idx] = formatDateToString(date) })
+        // Save possibleDates in formattedPossibleDates as strings and exclude weekends
+        possibleDates.forEach((date: any, idx: number) => { 
+            let currentDay = date.getDay();
+            if( currentDay !== 0 && currentDay !== 6 ){
+                formattedPossibleDates.push(formatDateToString(date))
+            }
+        })
 
         // Save bookedFormattedDates in formattedRestrictedDates as strings
         bookedFormattedDates.forEach((date: any, idx: number) => { formattedRestrictedDates[idx] = formatDateToString(date) })
 
-        // Save in selectedBookingDates the range of Dates selected by user ( from startBookingDate to endBookingDate)
-        let selectedBookingDates = formattedPossibleDates.slice(formattedPossibleDates.indexOf(startBookingDate), formattedPossibleDates.indexOf(endBookingDate) + 1)
-
+        // Save in selectedBookingDates the range of Dates selected by user ( from startBookingString to endBookingString)
+        let selectedBookingDates = formattedPossibleDates.slice(formattedPossibleDates.indexOf(startBookingString), formattedPossibleDates.indexOf(endBookingString) + 1)
         // Loop through all the formattedRestrictedDates and delete them from the selectedBookingDates array
         formattedRestrictedDates.forEach((date: string) => {
             // Get the index of the current restricted date in the selectedBookingDates;
@@ -192,10 +271,10 @@ export const BookDeskDialog = () => {
         // Create the booking with the given email address and the array of dates
         createBooking(currentUser, selectedBookingDates);
 
-        // Create an array with the elements of the bookedFormattedDates and the startBookingDate
+        // Create an array with the elements of the bookedFormattedDates and the startBookingString
         let newDateArray = [
             ...bookedFormattedDates,
-            formatStringToDate(startBookingDate)
+            startBookingString
         ];
 
         // Sort the array alphabetically
@@ -206,7 +285,7 @@ export const BookDeskDialog = () => {
 
 
         // If the start Booking date is today
-        if (startBookingDate === formatDateToString(today)) {
+        if (startBookingString === formatDateToString(today)) {
 
             // Update the current desk to be Reserved
             updateDesk()
@@ -257,57 +336,6 @@ export const BookDeskDialog = () => {
         
     }
 
-    // When the booking dialog opens, fetch the booked dates for that particular desk
-    useEffect(() => {
-        // Disable the Booking button so that you can't start the booking if the booked dates are not loaded yet
-        setBookingButtonState(true);
-
-        // Fetches the booked Dates
-        getBookedDates();
-
-        // Limit the possible Dates for booking to only 7
-        let pDates = [...possibleDates];
-        
-        for (let i = 1; i <= 30; i++) {
-            pDates.push(addDays(today, i))
-        }
-
-        setPossibleDates(pDates);
-
-        setStartBookingDate(today); 
-        setEndBookingDate(today);
-
-    }, [])
-
-
-    // Whenever bookedDates changes, format them into Dates and order them alphabetically
-    // Save it in bookedFormattedDates
-    useEffect(() => {
-        if (bookedDates !== undefined) {
-
-            let datesArray: any = [];
-
-            // Run through each bookedDate and format them into Dates
-            bookedDates.forEach((bookedDate: any) => {
-                datesArray.push(formatStringToDate(bookedDate.booked_date))
-            })
-
-            // Order them alphabetically
-            let sortedDates = datesArray.sort((a: any, b: any) => a - b)
-            
-            // Set Formatted and Ordered booked Dates
-            setBookedFormattedDates(sortedDates);
-        }
-
-    }, [bookedDates])
-
-    // Whenever the possibleDates and bookedFormattedDates change, Get the new Next available date for booking
-    useEffect(() => {
-        const next = getNextAvailableDate();
-        setNextAvailableDate(next);
-
-    }, [possibleDates, bookedFormattedDates])
-
     return (
         <Dialog
             title={`Book Desk`}
@@ -324,14 +352,13 @@ export const BookDeskDialog = () => {
                             showWeekNumbers={true}
                             firstWeekOfYear={1}
                             label={"Start Date"}
-                            // value={formatStringToDate(bookingDate)}
-                            value={formatStringToDate(startBookingDate)}
+                            value={startBookingDate}
                             showMonthPickerAsOverlay={true}
                             strings={defaultDatePickerStrings}
                             className={styles.input}
                             minDate={today}
                             maxDate={addDays(today, 30)}
-                            onSelectDate={(date: any) => { if(date !== null)  {setStartBookingDate(formatDateToString(date)); setEndBookingDate(formatDateToString(date)) }}}
+                            onSelectDate={(date: any) => { if(date !== null)  {setStartBookingString(formatDateToString(date)); setEndBookingString(formatDateToString(date)) }}}
                             calendarProps={{
                                 calendarDayProps: {
                                     restrictedDates: bookedFormattedDates
@@ -344,13 +371,16 @@ export const BookDeskDialog = () => {
                             showWeekNumbers={true}
                             firstWeekOfYear={1}
                             label={"End Date"}
-                            value={formatStringToDate(endBookingDate)}
+                            value={endBookingDate}
                             showMonthPickerAsOverlay={true}
                             strings={defaultDatePickerStrings}
                             className={styles.input}
-                            minDate={today}
+                            minDate={formatStringToDate(startBookingString)}
                             maxDate={addDays(today, 30)}
-                            onSelectDate={(date: any) => { date !== null && setEndBookingDate(formatDateToString(date)) }}
+                            onSelectDate={(date: any) => { 
+                                date !== null && (setEndBookingString(formatDateToString(date))
+)
+                            }}
                             calendarProps={{
                                 calendarDayProps: {
                                     restrictedDates: bookedFormattedDates
@@ -362,9 +392,6 @@ export const BookDeskDialog = () => {
                             label={"Email Address"}
                             placeholder={"uiexxxxxx@contiwan.com"}
                             value={currentUser.email}
-                            onChange={(e: any) => {
-                                setEmail(e.currentTarget.value)
-                            }}
                             className={styles.input}
                             disabled={true}
                         />

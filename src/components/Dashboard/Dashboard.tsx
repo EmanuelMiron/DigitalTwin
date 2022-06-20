@@ -9,6 +9,7 @@ import { sendWebSocketMessage } from '../../helpers/websocket';
 import { selectBookDesk } from '../../reducers/dialog';
 import { selectAssetData } from '../../reducers/assetData';
 import { formatDateString, formatDateToString } from '../Map/Dialogs/CreateAssetDialog';
+import { formatStringToDate } from '../Map/Dialogs/EditAssetDialog';
 
 
 // Styles
@@ -62,6 +63,12 @@ const styles = mergeStyleSets({
         position: 'relative',
         maxHeight: 'inherit',
     },
+    yourBookingsWrapper: {
+        height: '80vh',
+        width: '30vw',
+        position: 'relative',
+        maxHeight: 'inherit',
+    }
 });
 
 const columns: any = [
@@ -214,6 +221,9 @@ export const Dashboard = () => {
         ));
 
         getBookings(user);
+        if(bookingDate){
+            getOfficeBookings(bookingDate)
+        }
 
     }
 
@@ -242,28 +252,30 @@ export const Dashboard = () => {
 
                 {/* Table with || Desk Name || Date || Cancel Button  */}
                 {bookings.length > 0 ? (
-
-                    <DetailsList
-                        items={bookings}
-                        columns={columns}
-                        layoutMode={DetailsListLayoutMode.justified}
-                        onRenderItemColumn={(item: any, index: any, column: any): JSX.Element => {
-                            if (column.fieldName === 'cancelButton') {
-                                return (
-                                    <PrimaryButton
-                                        text="Cancel Booking"
-                                        className={styles.deleteButton}
-                                        onClick={() => {
-                                            deleteBooking(item.id, Number(item.desk_id))
-                                            console.log(item)
-                                        }}
-                                    />
-                                )
-                            }
-                            return item[column.fieldName];
-                        }}
-                        checkboxVisibility={2}
-                    />
+                    <div className={styles.yourBookingsWrapper}>
+                        <ScrollablePane>
+                            <DetailsList
+                                items={bookings}
+                                columns={columns}
+                                layoutMode={DetailsListLayoutMode.justified}
+                                onRenderItemColumn={(item: any, index: any, column: any): JSX.Element => {
+                                    if (column.fieldName === 'cancelButton') {
+                                        return (
+                                            <PrimaryButton
+                                                text="Cancel Booking"
+                                                className={styles.deleteButton}
+                                                onClick={() => {
+                                                    deleteBooking(item.id, Number(item.desk_id))
+                                                }}
+                                            />
+                                        )
+                                    }
+                                    return item[column.fieldName];
+                                }}
+                                checkboxVisibility={2}
+                            />
+                        </ScrollablePane>
+                    </div>
                 ) : (
                     <h3>You don't have any bookings for this area</h3>
                 )}
@@ -279,7 +291,7 @@ export const Dashboard = () => {
                             showWeekNumbers={true}
                             firstWeekOfYear={1}
                             label={"Date"}
-                            value={today}
+                            value={formatStringToDate(bookingDate)}
                             showMonthPickerAsOverlay={true}
                             strings={defaultDatePickerStrings}
                             minDate={today}
@@ -317,7 +329,6 @@ export const Dashboard = () => {
                                                         className={styles.deleteButton}
                                                         onClick={() => {
                                                             deleteBooking(item.id, Number(item.desk_id))
-                                                            console.log(item)
                                                         }}
                                                     />
                                                 )

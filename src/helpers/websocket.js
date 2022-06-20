@@ -13,7 +13,6 @@ export const wsConnect = () => {
     ws = new WebSocket(wsUri);
 
     ws.onmessage = function (msg) {
-        console.log(JSON.parse(msg.data))
         let data = JSON.parse(msg.data)
         let state = data.state;
         let mapData = data.mapData;
@@ -41,7 +40,6 @@ export const wsConnect = () => {
         }
 
         // Compare states 
-        console.log(state, mapData)
 
         // let diff = [];
 

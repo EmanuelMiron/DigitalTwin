@@ -152,15 +152,11 @@ const getUserAdminRights = async (id:any) => {
 
 
 // Fetch user Data
-export const fetchUserData = (): AppThunk => async (dispatch) => {
-    let data = await getUserData();
+export const fetchUserData = (user:any): AppThunk => async (dispatch) => {
+    let data = JSON.parse(user);
 
-    let adminRights = await getUserAdminRights(data.ID);
+    let adminRights = await getUserAdminRights(data.samaccountname);
 
-    console.log(data)
-    console.log(adminRights)
-
-    // dispatch(updateIcons(data))
     dispatch(setUser(
         [
             {
@@ -169,11 +165,11 @@ export const fetchUserData = (): AppThunk => async (dispatch) => {
             },
             {
                 "typ": "name",
-                "val": data.displayName
+                "val": data.cn
             },
             {
                 "typ": "userID",
-                "val": data.ID
+                "val": data.samaccountname
             },
             {
                 "typ": "adminLocations",

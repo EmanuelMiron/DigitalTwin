@@ -27,8 +27,15 @@ import { fetchIcons } from './reducers/icons';
 import { wsConnect } from './helpers/websocket';
 import { fetchUserData } from './reducers/user';
 import { Dashboard } from './components/Dashboard/Dashboard';
+import { setLayerVisibility } from './reducers/layersData';
 
 initializeIcons();
+
+function useQuery() {
+  const { search } = useLocation();
+
+  return React.useMemo(() => new URLSearchParams(search), [search]);
+}
 
 const App: React.FC = () => {
   // Create a reference for the dispatch function of the Redux store.
@@ -37,8 +44,11 @@ const App: React.FC = () => {
   // Save the current history sequence in the history variable
   const history = useHistory();
 
+  let query = useQuery();
+
   // save the pathname in the path variable
   const { pathname: path } = useLocation();
+
 
   useEffect(() => {
 
@@ -55,8 +65,7 @@ const App: React.FC = () => {
     // Dispatch the fetchIcons Action ( Requests the icons saved in the db as svgs)
     dispatch(fetchIcons());
 
-    // Fetch userdata and dispatch it
-    dispatch(fetchUserData());
+    
 
     // Don't add `path` to deps as we want to trigger this effect only once, not on every location change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,15 +76,25 @@ const App: React.FC = () => {
   useEffect(() => {
     // Only parse path and update current location when locations data has been loaded otherwise there is a race condition between this update and update triggered by`fetchLocationsInfo`
     if (isLoaded) {
-      console.log(path);
-      if (path === "/dashboard") {
+        if( atob(query.get("auth") || "") !== "") {
+            // Fetch userdata and dispatch it
+            dispatch(fetchUserData(atob(query.get("auth") || "")));
+        }
+        
 
-      } else {
+      if (path === "/dashboard") {
+        console.log(query.get("auth"))
+      } else if( path.search("auth") !== -1) {
+        alert(path)
+      }else {
         // Dispatch the updateCurrentLocation Action( Changes the locationData.current to the current location)
         dispatch(updateCurrentLocation(path, history));
 
         // Dispatch the fetchAssetsInfo Action ( Requests and saves the Assets to the store )
         dispatch(fetchAssetsInfo(path.split("/")[path.split("/").length - 1]));
+
+        // Activate the Assets layer by default
+        dispatch(setLayerVisibility({ id: "asset", isVisible: true }))
       }
       wsConnect()
     }

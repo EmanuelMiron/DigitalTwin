@@ -46,7 +46,6 @@ const SideNavBar: React.FC = () => {
 
 	return (
 		<div className={`sidenav-bar${isCollapsed ? ' collapsed' : ''}`}>
-			{console.log(history)}
 			<div className="top-group">
 				<Nav
 					groups={[{ links }]}
