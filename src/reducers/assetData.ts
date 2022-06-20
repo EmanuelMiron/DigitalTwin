@@ -113,7 +113,6 @@ const assetDataSlice = createSlice({
         },
         updateAsset: (state: any, action: PayloadAction<any>) => {
             let asset = action.payload;
-            console.log(asset, {...state})
             return {
                 ...state,
                 [asset.type]: state[asset.type].map(

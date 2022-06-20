@@ -76,9 +76,6 @@ export const wsConnect = () => {
 
         // Update Assets
         mapService.updateAssetData(data);
-
-
-        console.log('State Changed');
     }
 
     ws.onopen = function () {

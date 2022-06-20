@@ -117,7 +117,6 @@ export class IndoorLayer implements Layer {
 
         // Adds the mouseup event on the Indoor Layer
         this.map.events.add('mouseup', (e) => {
-            console.log(e)
             if (e.originalEvent !== undefined) {
 
                 
