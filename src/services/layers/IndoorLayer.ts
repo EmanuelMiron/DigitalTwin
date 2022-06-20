@@ -161,10 +161,10 @@ export class IndoorLayer implements Layer {
             }
         })
 
-        // When zooming, hide the popover   
-        this.map.events.add('zoom', e => {
-            this.dispatch!(hidePopover(PopoverType.Menu))
-        })
+        // // When zooming, hide the popover   
+        // this.map.events.add('zoom', e => {
+        //     this.dispatch!(hidePopover(PopoverType.Menu))
+        // })
     }
 
 

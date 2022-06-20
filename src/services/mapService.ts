@@ -363,6 +363,13 @@ class MapService {
         assetsLayer.updateData(data);
     }
 
+     // update asset data with the provided data
+     public updateAssetData(data: any) {
+        // Get the referene for the Assets Layer
+        const assetsLayer: AssetLayer = this.layers[LayerId.Asset] as AssetLayer;
+        assetsLayer.updateDesk(data);
+    }
+
     public updateIcons(icons: any[]) {
         // Get the referene for the Assets Layer
         const assetsLayer: AssetLayer = this.layers[LayerId.Asset] as AssetLayer;

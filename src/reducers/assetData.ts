@@ -35,7 +35,7 @@ export interface assetProps {
 
 // Initial Popover States
 const initialState: any = {
-    
+
 };
 
 // create assetData Slice
@@ -50,15 +50,18 @@ const assetDataSlice = createSlice({
 
             const assets = action.payload
             let updateState: any = {}
-            assets.forEach(asset => {
-                // Create the assetTypes on the state obj
-                if (updateState[asset.type] === undefined) {
-                    updateState[asset.type] = [];
-                }
+            if(Array.isArray(assets)){
 
-                // Add the assets in the state
-                updateState[asset.type].push(asset)
-            })
+                assets.forEach(asset => {
+                    // Create the assetTypes on the state obj
+                    if (updateState[asset.type] === undefined) {
+                        updateState[asset.type] = [];
+                    }
+    
+                    // Add the assets in the state
+                    updateState[asset.type].push(asset)
+                })
+            }
             return {
                 ...state,
                 ...updateState
@@ -82,7 +85,7 @@ const assetDataSlice = createSlice({
             let newState = action.payload.newAsset;
 
             const destState = () => {
-                if(state[type]){
+                if (state[type]) {
                     return [...state[type]]
                 }
                 return []
@@ -97,7 +100,7 @@ const assetDataSlice = createSlice({
             }
         },
 
-        updateAsset: (state: any, action:PayloadAction<any>) => {
+        updateAssets: (state: any, action: PayloadAction<any>) => {
 
             let type = action.payload.type;
             let updatedAsset = action.payload.updatedAsset;
@@ -107,14 +110,25 @@ const assetDataSlice = createSlice({
                 [type]: [...updatedAsset]
             }
 
+        },
+        updateAsset: (state: any, action: PayloadAction<any>) => {
+            let asset = action.payload;
+            console.log(asset, {...state})
+            return {
+                ...state,
+                [asset.type]: state[asset.type].map(
+                    (desk:any) => desk.assetId === asset.assetId ? { ...desk, ...asset.props } : {...desk}
+                )
+            }
+
         }
     }
 })
 
 // Fetches assetData and returns it
-const fetchAssetsData = async () => {
+const fetchAssetsData = async (area: string) => {
     try {
-        const response: Response = await fetch(assetDataUrl);
+        const response: Response = await fetch(`${assetDataUrl}/location/${area}`);
 
         // If the response is ok, returns the json obj, if it is empty return an empty obj.
         if (response.ok) {
@@ -130,11 +144,12 @@ const fetchAssetsData = async () => {
     }
 }
 
-export const { setAssetsData, deleteAsset, addAsset, updateAsset } = assetDataSlice.actions;
+export const { setAssetsData, deleteAsset, addAsset, updateAssets, updateAsset } = assetDataSlice.actions;
 
 // Fetches assetData and saves it into the store
-export const fetchAssetsInfo = (): AppThunk => async (dispatch) => {
-    let data = await fetchAssetsData();
+export const fetchAssetsInfo = (area: string): AppThunk => async (dispatch) => {
+
+    let data = await fetchAssetsData(area);
     dispatch(setAssetsData(data))
 
     // Update the assetData on the map
@@ -144,22 +159,22 @@ export const fetchAssetsInfo = (): AppThunk => async (dispatch) => {
 export const selectAssetData = (state: RootState) => state.assetsData;
 export const selectAssetDataForEdit = (state: RootState) => {
     let assets = JSON.parse(JSON.stringify(state.assetsData));
-    let newAssets:any = {}
+    let newAssets: any = {}
 
     for (let asset in assets) {
         newAssets[asset] = []
-        assets[asset].forEach((a:any) => {
-            let newA:any = {} 
-            for (let i in a){
-                if (['position', 'iconID', 'type'].indexOf(i) === -1){
+        assets[asset].forEach((a: any) => {
+            let newA: any = {}
+            for (let i in a) {
+                if (['position', 'iconID', 'type'].indexOf(i) === -1) {
                     newA[i] = a[i]
                 }
             }
-            if(Object.keys(newA).length > 0){
+            if (Object.keys(newA).length > 0) {
                 newAssets[asset].push(newA)
             }
         })
-        
+
     }
     return newAssets;
 

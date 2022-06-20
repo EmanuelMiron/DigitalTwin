@@ -18,7 +18,6 @@ export const assetTypesDataSlice = createSlice({
     reducers: {
        
         updateAssetTypes: (state: any, action: PayloadAction<any>) => {
-            console.log(action)
             return [
                 ...action.payload
             ]
